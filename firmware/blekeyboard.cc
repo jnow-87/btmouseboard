@@ -319,7 +319,7 @@ const uint8_t _asciimap[128] =
 	0x26,          // 9
 	0x33|SHIFT,      // :
 	0x33,          // ;
-	0x36|SHIFT,      // <
+	0x64,      // <
 	0x2e,          // =
 	0x37|SHIFT,      // >
 	0x38|SHIFT,      // ?
