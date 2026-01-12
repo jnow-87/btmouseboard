@@ -23,7 +23,7 @@ tool_deps := arduino-cli
 
 # init source and build tree
 default_build_tree := build/$(CONFIG_BUILD_TYPE)/
-src_dirs := firmware
+src_dirs := controller firmware
 
 # include build system Makefile
 include $(scripts_dir)/main.make
@@ -61,3 +61,14 @@ clean:
 .PHONY: distclean
 distclean:
 	$(rm) $(config) $(build_tree)
+
+## install
+include $(scripts_dir)/install.make
+
+.PHONY: install
+install: all
+	$(call install,$(build_tree)/controller/btmouseboard)
+
+.PHONY: uninstall
+uninstall:
+	$(call uninstall,$(PREFIX)/btmouseboard)

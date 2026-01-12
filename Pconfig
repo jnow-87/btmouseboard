@@ -36,6 +36,52 @@ menu "uart"
 	endmenu
 endmenu
 
+menu "controller"
+	config SCROLL_DISTANCE
+		int "scroll distance"
+		default 1
+
+	config FONT
+		qstring "font"
+		default "DejaVuSansMono"
+
+	config WIN_WIDTH
+		int "initial window width"
+		default 500
+
+	config WIN_HEIGHT
+		int "initial window height"
+		default 400
+
+	config COLOR_TEXT
+		qstring "color: normal text"
+		default "#ffffff"
+
+	config COLOR_ERROR
+		qstring "color: error messages"
+		default "#ff0000"
+
+	config COLOR_INFO
+		qstring "color: info messages"
+		default "#dfaf00"
+
+	config COLOR_BACKGROUND
+		qstring "color: window background"
+		default "#000000"
+
+	config COLOR_STATUSLINE
+		qstring "color: status line background"
+		default "#5f005f"
+
+	config COLOR_BLUETOOTH
+		qstring "color: bluetooth connection status"
+		default "#0087df"
+
+	config LOG_MAX
+		int "max log entries"
+		default 150
+endmenu
+
 menu "firmware"
 	config FW_LED_PORT
 		int "led port"
