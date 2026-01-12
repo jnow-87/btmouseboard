@@ -1,0 +1,84 @@
+mainmenu "btmouseboard"
+
+menu "uart"
+	choice
+		prompt "uart variant"
+
+		config UART_MODE_SERIAL
+			bool "serial"
+
+		config UART_MODE_USB_JTAG
+			bool "usb-jtag"
+	endchoice
+
+	config UART_SERIAL_BAUDRATE
+		int "uart baudrate"
+		depends on UART_MODE_SERIAL
+		default 115200
+
+	menu "hidden"
+		visible if 0
+
+		config UART_MODE
+			string "uart mode"
+			default "usb-jtag" if UART_MODE_USB_JTAG
+			default "serial" if UART_MODE_SERIAL
+
+		config UART_PATTERN
+			qstring "uart device pattern"
+			default "/dev/ttyACM%d" if UART_MODE_USB_JTAG
+			default "/dev/ttyUSB%d" if UART_MODE_SERIAL
+
+		config UART_BAUDRATE
+			int "uart baudrate"
+			default 115200 if UART_MODE_USB_JTAG
+			default UART_SERIAL_BAUDRATE if UART_MODE_SERIAL
+	endmenu
+endmenu
+
+menu "firmware"
+	config FW_LED_PORT
+		int "led port"
+		default 8
+
+	config ARDUINO_PACKAGE
+		string "arduino package"
+		default "esp32"
+
+	config ARDUINO_ARCH
+		string "arduino architecture"
+		default "esp32"
+
+	config ARDUINO_BOARD
+		string "arduino board"
+		default "esp32c3"
+
+	config ARDUINO_PROG_PORT
+		string "arduino programmer port"
+		default "/dev/ttyACM0"
+
+	config ARDUINO_SYS_FILES
+		string "arduino system files"
+		default "/opt/arduino"
+endmenu
+
+menu "build"
+	choice
+		prompt "build type"
+
+		config BUILD_RELEASE
+			bool "release"
+
+		config BUILD_DEBUG
+			bool "debug"
+	endchoice
+
+	menu "Hidden"
+		visible if 0
+
+		config BUILD_TYPE
+			string "Build type"
+			default "debug" if BUILD_DEBUG
+			default "release" if BUILD_RELEASE
+	endmenu
+endmenu

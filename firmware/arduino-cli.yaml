@@ -1,0 +1,6 @@
+board_manager:
+  additional_urls: []
+
+directories:
+  data: /opt/arduino
+  downloads: /opt/arduino
