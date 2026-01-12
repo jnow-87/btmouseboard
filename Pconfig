@@ -41,6 +41,10 @@ menu "controller"
 		int "scroll distance"
 		default 1
 
+	config REVERSE_XKB_CUSTOM_MAP
+		bool "reverse custom xkb map"
+		default n
+
 	config FONT
 		qstring "font"
 		default "DejaVuSansMono"
