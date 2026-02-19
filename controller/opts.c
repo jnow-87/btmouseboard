@@ -13,6 +13,7 @@ static int help(char const *prog_name, char const *err, ...);
 opts_t opts = {
 	.debug = false,
 	.log_to_stdout = false,
+	.reverse_custom_xkb_map = false,
 };
 
 
@@ -20,17 +21,19 @@ opts_t opts = {
 int opts_parse(int argc, char **argv){
 	int opt;
 	struct option const long_opt[] = {
-		{ .name = "debug",			.has_arg = no_argument,	.flag = 0x0,	.val = 'd' },
-		{ .name = "log-to-stdout",	.has_arg = no_argument,	.flag = 0x0,	.val = 's' },
-		{ .name = "help",			.has_arg = no_argument,	.flag = 0x0,	.val = 'h' },
+		{ .name = "debug",					.has_arg = no_argument,	.flag = 0x0,	.val = 'd' },
+		{ .name = "log-to-stdout",			.has_arg = no_argument,	.flag = 0x0,	.val = 's' },
+		{ .name = "reverse-xkb-custom-map",	.has_arg = no_argument,	.flag = 0x0,	.val = 'x' },
+		{ .name = "help",					.has_arg = no_argument,	.flag = 0x0,	.val = 'h' },
 		{ 0, 0, 0, 0}
 	};
 
 
-	while((opt = getopt_long(argc, argv, ":dsh", long_opt, 0)) != -1){
+	while((opt = getopt_long(argc, argv, ":dsxh", long_opt, 0)) != -1){
 		switch(opt){
 		case 'd':	opts.debug = true; break;
 		case 's':	opts.log_to_stdout = true; break;
+		case 'x':	opts.reverse_custom_xkb_map = true; break;
 		case 'h':	return help(argv[0], 0x0);
 
 		case ':':	return help(argv[0], "missing argument to \"%s\"\n\n", argv[optind - 1]);
@@ -65,10 +68,12 @@ static int help(char const *prog_name, char const *err, ...){
 		"Options:\n"
 		"    %-20.20s    %s (default=%s)\n"
 		"    %-20.20s    %s (default=%s)\n"
+		"    %-20.20s    %s (default=%s)\n"
 		"    %-20.20s    %s\n"
 		, prog_name
 		, "-d, --debug", "enable debug output", "false"
 		, "-s, --log-to-stdout", "print log message to stdout rather than the application window", "false"
+		, "-x, --reverse-custom-xkb-map", "reverse the effects of the custom xkb map", "false"
 		, "-h, --help", "print this help message"
 	);
 

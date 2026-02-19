@@ -1,6 +1,7 @@
 #include <config/config.h>
 #include <X11/XKBlib.h>
 #include <controller/log.h>
+#include <controller/opts.h>
 #include <controller/render.h>
 #include <controller/uart.h>
 #include <controller/xlib.h>
@@ -166,6 +167,23 @@ static uint8_t translate_keysym(KeySym sym){
 	if(sym >= 32 && sym < 127)
 		return sym;
 
+	if(opts.reverse_custom_xkb_map){
+		// Reverse effect of custom xkb file.
+		//
+		// The custom xkb mapping pre-translates key sequences on the xserver level, e.g. alt_l + left
+		// to home. This poses a problem here since the keys sent to the target, when for instance
+		// typing alt_l + left, is alt_t and home instead of alt_t and left.
+		switch(sym){
+		case XK_Insert:				return NONASCII_BASE + 14;
+		case XK_Delete:				return NONASCII_BASE + 12;
+		case XK_Page_Up:			return NONASCII_BASE + 8;
+		case XK_Page_Down:			return NONASCII_BASE + 9;
+		case XK_Home:				return NONASCII_BASE + 10;
+		case XK_End:				return NONASCII_BASE + 11;
+		default:					break;
+		}
+	}
+
 	switch(sym){
 	case XK_Control_L:			return NONASCII_BASE + 0;
 	case XK_Shift_L:			return NONASCII_BASE + 1;
@@ -238,28 +256,12 @@ static uint8_t translate_keysym(KeySym sym){
 	case XK_KP_Delete:
 	case XK_KP_Separator:		return NONASCII_BASE + 63;
 	case XK_Num_Lock:			return NONASCII_BASE + 64;
-
-#ifdef CONFIG_REVERSE_XKB_CUSTOM_MAP
-	// Reverse effect of custom xkb file.
-	//
-	// The custom xkb mapping pre-translates key sequences on the xserver level, e.g. alt_l + left
-	// to home. This poses a problem here since the keys sent to the target, when for instance
-	// typing alt_l + left, is alt_t and home instead of alt_t and left.
-	case XK_Insert:				return NONASCII_BASE + 14;
-	case XK_Delete:				return NONASCII_BASE + 12;
-	case XK_Page_Up:			return NONASCII_BASE + 8;
-	case XK_Page_Down:			return NONASCII_BASE + 9;
-	case XK_Home:				return NONASCII_BASE + 10;
-	case XK_End:				return NONASCII_BASE + 11;
-#else // CONFIG_REVERSE_XKB_CUSTOM
 	case XK_Insert:				return NONASCII_BASE + 16;
 	case XK_Delete:				return NONASCII_BASE + 18;
 	case XK_Page_Up:			return NONASCII_BASE + 19;
 	case XK_Page_Down:			return NONASCII_BASE + 20;
 	case XK_Home:				return NONASCII_BASE + 21;
 	case XK_End:				return NONASCII_BASE + 22;
-#endif
-
 	default:					return 0;
 	}
 }
