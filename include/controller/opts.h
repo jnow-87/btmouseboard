@@ -8,7 +8,8 @@
 /* types */
 typedef struct{
 	bool debug,
-		 log_to_stdout;
+		 log_to_stdout,
+		 reverse_custom_xkb_map;
 } opts_t;
 
 
