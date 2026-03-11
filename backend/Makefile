@@ -1,1 +1,1 @@
-obj-y := bluetooth/
+obj-y := bluetooth/ x11/

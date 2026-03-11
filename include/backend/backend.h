@@ -8,6 +8,12 @@
 
 
 /* types */
+typedef enum{
+	BE_INVAL = -1,
+	BE_BLUETOOTH,
+	BE_X11,
+} backend_type_t;
+
 typedef struct backend_t{
 	void *data;
 
@@ -26,6 +32,7 @@ typedef struct backend_t{
 
 /* prototypes */
 backend_t *backend_create_uart(void);
+backend_t *backend_create_x11(char const *host, unsigned int port);
 
 
 #endif // HARDWARE_H

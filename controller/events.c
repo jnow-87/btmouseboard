@@ -179,7 +179,7 @@ static int motion_notify(xevent_t *e, xlib_win_t *win, backend_t *be){
 		win->cursor_y = win->height / 2;
 
 	if(win->cursor_x != ev->x || win->cursor_y != ev->y)
-		xlib_cursor_move(win, win->cursor_x, win->cursor_y);
+		xlib_cursor_move_to(win, win->cursor_x, win->cursor_y);
 
 	return be->move(be, dx, dy);
 }

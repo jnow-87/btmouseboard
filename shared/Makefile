@@ -1,1 +1,3 @@
-obj-y := xlib.o
+obj-y := \
+	socket.o \
+	xlib.o

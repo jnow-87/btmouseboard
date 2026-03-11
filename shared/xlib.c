@@ -3,6 +3,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/XTest.h>
 #include <X11/extensions/Xfixes.h>
 #include <limits.h>
 #include <stdarg.h>
@@ -174,7 +175,11 @@ void xlib_scene_begin(xlib_win_t *win){
 
 void xlib_scene_end(xlib_win_t *win){
 	XCopyArea(win->xobj->dpy, win->gfx->drawable, win->id, win->gfx->gc, 0, 0, win->width, win->height, 0, 0);
-	XSync(win->xobj->dpy, False);
+	xlib_sync(win->xobj);
+}
+
+void xlib_sync(xlib_obj_t *xobj){
+	XSync(xobj->dpy, False);
 }
 
 unsigned int xlib_printf(xlib_win_t *win, int x, int y, char const *fmt, ...){
@@ -228,8 +233,16 @@ void xlib_rect(xlib_win_t *win, int x, int y, unsigned int width, unsigned int h
 	else		XDrawRectangle(xobj->dpy, gfx->drawable, gfx->gc, x, y, width - 1, height - 1);
 }
 
-void xlib_cursor_move(xlib_win_t *win, int x, int y){
-	XWarpPointer(win->xobj->dpy, None, win->id, 0, 0, 0, 0, x, y);
+int xlib_cursor_move(xlib_obj_t *xobj, int dx, int dy){
+	return (XWarpPointer(xobj->dpy, None, None, 0, 0, 0, 0, dx, dy) == 0) ? -1 : 0;
+}
+
+int xlib_cursor_move_to(xlib_win_t *win, int x, int y){
+	return (XWarpPointer(win->xobj->dpy, None, win->id, 0, 0, 0, 0, x, y) == 0) ? -1 : 0;
+}
+
+int xlib_cursor_click(xlib_obj_t *xobj, int button, bool press){
+	return (XTestFakeButtonEvent(xobj->dpy, button, press, CurrentTime) == 0) ? -1 : 0;
 }
 
 void xlib_cursor_visible(xlib_win_t *win, bool visible){
@@ -240,6 +253,10 @@ void xlib_cursor_visible(xlib_win_t *win, bool visible){
 	else			XFixesHideCursor(xobj->dpy, xobj->root);
 }
 
+int xlib_key(xlib_obj_t *xobj, KeySym sym, bool press){
+	return (XTestFakeKeyEvent(xobj->dpy, XKeysymToKeycode(xobj->dpy, sym), press, CurrentTime) == 0) ? -1 : 0;
+}
+
 
 /* local functions */
 static gfx_t *gfx_init(xlib_obj_t *xobj, int width, int height){
@@ -247,6 +264,7 @@ static gfx_t *gfx_init(xlib_obj_t *xobj, int width, int height){
 		CONFIG_COLOR_TEXT,
 		CONFIG_COLOR_ERROR,
 		CONFIG_COLOR_INFO,
+		CONFIG_COLOR_SUCCESS,
 		CONFIG_COLOR_BACKGROUND,
 		CONFIG_COLOR_STATUSLINE,
 		CONFIG_COLOR_BLUETOOTH,

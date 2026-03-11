@@ -71,6 +71,18 @@ include $(scripts_dir)/install.make
 install: all
 	$(call install,$(build_tree)/controller/mb)
 
+.PHONY: install-system
+install-system: all
+	$(call install,$(build_tree)/backend/x11/xmbrecv/xmbrecv,/usr/bin)
+	$(call install,system/xmbrecv.service,/etc/systemd/system/)
+	systemctl enable xmbrecv.service
+
 .PHONY: uninstall
 uninstall:
 	$(call uninstall,$(PREFIX)/mb)
+
+.PHONY: uninstall-system
+uninstall-system:
+	systemctl disable xmbrecv.service
+	$(call uninstall,/etc/systemd/system/xmbrecv.service)
+	$(call uninstall,/usr/bin/xmbrecv)

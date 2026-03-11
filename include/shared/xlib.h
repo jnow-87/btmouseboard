@@ -17,6 +17,7 @@ typedef enum{
 	COLOR_TEXT = 0,
 	COLOR_ERROR,
 	COLOR_INFO,
+	COLOR_SUCCESS,
 	COLOR_BACKGROUND,
 	COLOR_STATUSLINE,
 	COLOR_BLUETOOTH,
@@ -67,14 +68,19 @@ void xlib_resize(xlib_win_t *win, int width, int height);
 
 void xlib_scene_begin(xlib_win_t *win);
 void xlib_scene_end(xlib_win_t *win);
+void xlib_sync(xlib_obj_t *xobj);
 
 unsigned int xlib_printf(xlib_win_t *win, int x, int y, char const *fmt, ...);
 unsigned int xlib_cprintf(xlib_win_t *win, int x, int y, color_t color, char const *fmt, ...);
 unsigned int xlib_cdprintf(xlib_win_t *win, int x, int y, color_t color, char const *fmt, va_list lst);
 void xlib_rect(xlib_win_t *win, int x, int y, unsigned int width, unsigned int height, color_t color, bool filled);
 
-void xlib_cursor_move(xlib_win_t *win, int x, int y);
+int xlib_cursor_move(xlib_obj_t *xobj, int dx, int dy);
+int xlib_cursor_move_to(xlib_win_t *win, int x, int y);
+int xlib_cursor_click(xlib_obj_t *xobj, int button, bool press);
 void xlib_cursor_visible(xlib_win_t *win, bool visible);
+
+int  xlib_key(xlib_obj_t *xobj, KeySym sym, bool press);
 
 
 #endif // XLIB_H

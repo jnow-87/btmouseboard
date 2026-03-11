@@ -22,7 +22,10 @@ int main(int argc, char **argv){
 	if(r != 0)
 		return r;
 
-	be = backend_create_uart();
+	switch(opts.backend){
+	case BE_BLUETOOTH:	be = backend_create_uart(); break;
+	case BE_X11:		be = backend_create_x11(opts.host, opts.port); break;
+	}
 
 	if(be == 0x0)
 		goto_err(err_0, "creating backend");
