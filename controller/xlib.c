@@ -3,6 +3,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xfixes.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -162,6 +163,15 @@ void xlib_rect(xlib_obj_t *xobj, int x, int y, unsigned int width, unsigned int 
 
 	if(filled)	XFillRectangle(xobj->dpy, gfx->drawable, gfx->gc, x, y, width, height);
 	else		XDrawRectangle(xobj->dpy, gfx->drawable, gfx->gc, x, y, width - 1, height - 1);
+}
+
+void xlib_cursor_move(xlib_obj_t *xobj, int x, int y){
+	XWarpPointer(xobj->dpy, None, xobj->win, 0, 0, 0, 0, x, y);
+}
+
+void xlib_cursor_visible(xlib_obj_t *xobj, bool visible){
+	if(visible)		XFixesShowCursor(xobj->dpy, xobj->win);
+	else			XFixesHideCursor(xobj->dpy, xobj->root);
 }
 
 
