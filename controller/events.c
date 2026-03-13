@@ -27,6 +27,7 @@
 static int client_message(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int configure_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int enter_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
+static int map_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int unmap_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int expose(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int key(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
@@ -54,6 +55,7 @@ static int (*handler[LASTEvent])(xevent_t *, xlib_obj_t *, uart_t *) = {
 	[ClientMessage] = client_message,
 	[ConfigureNotify] = configure_notify,
 	[EnterNotify] = enter_notify,
+	[MapNotify] = map_notify,
 	[UnmapNotify] = unmap_notify,
 	[Expose] = expose,
 	[KeyPress] = key,
@@ -110,8 +112,17 @@ static int enter_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart){
 	return 0;
 }
 
+static int map_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart){
+	xlib_cursor_visible(xobj, false);
+
+	return 0;
+}
+
 static int unmap_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart){
+	xlib_cursor_visible(xobj, true);
 	uart_stop(uart);
+
+	return 0;
 }
 
 static int expose(xevent_t *e, xlib_obj_t *xobj, uart_t *uart){

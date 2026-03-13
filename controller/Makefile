@@ -18,4 +18,5 @@ btmouseboard-cppflags := \
 btmouseboard-ldlibs := \
     -lX11 \
     -lfontconfig \
-    -lXft
+    -lXft \
+	-lXfixes
