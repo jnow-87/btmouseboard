@@ -65,5 +65,7 @@ unsigned int xlib_cprintf(xlib_obj_t *xobj, int x, int y, color_t color, char co
 unsigned int xlib_cdprintf(xlib_obj_t *xobj, int x, int y, color_t color, char const *fmt, va_list lst);
 void xlib_rect(xlib_obj_t *xobj, int x, int y, unsigned int width, unsigned int height, color_t color, bool filled);
 
+void xlib_cursor_move(xlib_obj_t *xobj, int x, int y);
+
 
 #endif // XLIB_H

@@ -164,6 +164,10 @@ void xlib_rect(xlib_obj_t *xobj, int x, int y, unsigned int width, unsigned int 
 	else		XDrawRectangle(xobj->dpy, gfx->drawable, gfx->gc, x, y, width - 1, height - 1);
 }
 
+void xlib_cursor_move(xlib_obj_t *xobj, int x, int y){
+	XWarpPointer(xobj->dpy, None, xobj->win, 0, 0, 0, 0, x, y);
+}
+
 
 /* local functions */
 static Window win_create(char *win_class_name, xlib_obj_t *xobj){

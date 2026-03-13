@@ -8,6 +8,21 @@
 #include <protocol.h>
 
 
+/* macros */
+#define OOB_DIV			20
+#define OOB_MIN_PIXEL	50
+
+#define CURSOR_OUT_OF_BOUNDS(val, max)({ \
+	typeof(val) _val = val; \
+	typeof(max) _max = max; \
+	typeof(max) _offset = _max / OOB_DIV; \
+	\
+	\
+	_offset = (_offset < OOB_MIN_PIXEL) ? OOB_MIN_PIXEL : _offset; \
+	(_val < _offset || _val > _max - _offset); \
+})
+
+
 /* local/static prototypes */
 static int client_message(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
 static int configure_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart);
@@ -143,7 +158,21 @@ static int motion_notify(xevent_t *e, xlib_obj_t *xobj, uart_t *uart){
 
 	xobj->cursor_x = ev->x;
 	xobj->cursor_y = ev->y;
-	
+
+	/* reset the cursor to the window center if it goes out of a certain area
+	 *  moving the cursor via xlib also causes XMotionEvent events, those events
+	 *  must not be translated to the receiver, hence the xobj cursor position
+	 *  is updated, hence dx and dy are zero for the upcoming XMotionEvents
+	 */
+	if(CURSOR_OUT_OF_BOUNDS(xobj->cursor_x, xobj->win_width))
+		xobj->cursor_x = xobj->win_width / 2;
+
+	if(CURSOR_OUT_OF_BOUNDS(xobj->cursor_y, xobj->win_height))
+		xobj->cursor_y = xobj->win_height / 2;
+
+	if(xobj->cursor_x != ev->x || xobj->cursor_y != ev->y)
+		xlib_cursor_move(xobj, xobj->cursor_x, xobj->cursor_y);
+
 	return uart_move(uart, dx, dy);
 }
 
