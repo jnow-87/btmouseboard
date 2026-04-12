@@ -2,12 +2,12 @@
 #define EVENTS_H
 
 
-#include <controller/uart.h>
+#include <controller/backend.h>
 #include <controller/xlib.h>
 
 
 /* prototypes */
-int event_handle(xevent_t *ev, xlib_obj_t *xobj, uart_t *uart);
+int event_handle(xevent_t *ev, xlib_obj_t *xobj, backend_t *be);
 
 
 #endif // EVENTS_H

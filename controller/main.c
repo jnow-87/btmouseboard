@@ -1,16 +1,16 @@
 #include <string.h>
+#include <controller/backend.h>
 #include <controller/events.h>
 #include <controller/log.h>
 #include <controller/opts.h>
 #include <controller/render.h>
-#include <controller/uart.h>
 #include <controller/xlib.h>
 
 
 /* global functions */
 int main(int argc, char **argv){
 	int r;
-	uart_t *uart;
+	backend_t *be;
 	xlib_obj_t *xobj;
 	xevent_t ev;
 
@@ -20,9 +20,9 @@ int main(int argc, char **argv){
 	if(r != 0)
 		return r;
 
-	uart = uart_init();
+	be = backend_create_uart();
 
-	if(uart == 0x0)
+	if(be == 0x0)
 		goto err_0;
 
 	xobj = xlib_init("btmouseboard");
@@ -35,20 +35,20 @@ int main(int argc, char **argv){
 	log_init(opts.debug);
 
 	while(xlib_event(xobj, &ev) == 0){
-		if(event_handle(&ev, xobj, uart) > 0)
+		if(event_handle(&ev, xobj, be) > 0)
 			break;
 
-		render(xobj, uart);
+		render(xobj, be);
 	}
 
 	xlib_destroy(xobj);
-	uart_destroy(uart);
+	be->destroy(be);
 
 	return 0;
 
 
 err_1:
-	uart_destroy(uart);
+	be->destroy(be);
 
 err_0:
 	return 1;

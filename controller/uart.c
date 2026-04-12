@@ -1,89 +1,158 @@
 #include <config/config.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <X11/X.h>
+#include <controller/backend.h>
 #include <controller/log.h>
+#include <controller/opts.h>
 #include <controller/render.h>
-#include <controller/uart.h>
-#include <protocol.h>
+#include <controller/xlib.h>
+#include <common/uart.h>
 
 
 /* macros */
 #define _BRATE(x)				B##x
 #define TERMIOS_BRATE(baud)		_BRATE(baud)
 
+/* types */
+typedef struct{
+	int fd;
+	unsigned int dev_num;
+	bool connected;
+} uart_t;
+
 
 /* local/static prototypes */
+// backend callbacks
+static void be_destroy(backend_t *be);
+
+static int be_stop(backend_t *be);
+
+static int be_key(backend_t *be, KeySym sym, bool press);
+static int be_button(backend_t *be, uint8_t button, bool press);
+static int be_move(backend_t *be, int8_t dx, int8_t dy);
+
+static unsigned int be_render_status(backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y);
+
+// firmware protocol
 static int hscroll(uart_t *uart, uint8_t button);
 static int vscroll(uart_t *uart, uint8_t button);
 
 static int send_cmd(uart_t *uart, hdr_t hdr, uint8_t *data, size_t ndata);
 static int trywrite(uart_t *uart, uint8_t *data, size_t n);
 
+// uart device handling
 static void reinit(uart_t *uart);
 static void discover(uart_t *uart, char const *fmt);
 static int configure(int fd);
+
+// helper
+static uint8_t translate_keysym(KeySym sym);
 
 static char const *strcmd(hdr_t hdr);
 static char const *strresp(response_t resp);
 
 
 /* global functions */
-uart_t *uart_init(void){
-	uart_t *uart;
+backend_t *backend_create_uart(void){
+	backend_t *be;
 
 
-	uart = malloc(sizeof(uart_t));
+	be = malloc(sizeof(backend_t));
 
-	if(uart == 0x0){
-		ERROR("allocating uart");
+	if(be == 0x0)
+		goto err_0;
 
-		return 0x0;
-	}
+	be->data = malloc(sizeof(uart_t));
 
-	uart->fd = -1;
-	reinit(uart);
+	if(be->data == 0x0)
+		goto err_1;
 
-	return uart;
-}
+	be->destroy = be_destroy;
+	be->stop = be_stop;
+	be->key = be_key;
+	be->button = be_button;
+	be->move = be_move;
+	be->render_status = be_render_status;
 
-void uart_destroy(uart_t *uart){
-	if(uart->fd >= 0){
-		uart_stop(uart);
-		close(uart->fd);
-	}
+	((uart_t*)be->data)->fd = -1;
+	reinit(be->data);
 
-	free(uart);
-}
+	return be;
 
-int uart_stop(uart_t *uart){
-	return send_cmd(uart, HDR_CLOSE, 0x0, 0);
-}
 
-int uart_key(uart_t *uart, uint8_t key, bool press){
-	return send_cmd(uart, press ? HDR_KEY_PRESS : HDR_KEY_RELEASE, &key, 1);
-}
+err_1:
+	free(be);
 
-int uart_button(uart_t *uart, uint8_t button, bool press){
-	if(button == 4 || button == 5)
-		return vscroll(uart, button);
+err_0:
+	ERROR("allocating uart backend");
 
-	if(button == 6 || button == 7)
-		return hscroll(uart, button);
-
-	return send_cmd(uart, press ? HDR_BUTTON_PRESS : HDR_BUTTON_RELEASE, &button, 1);
-}
-
-int uart_move(uart_t *uart, int8_t dx, int8_t dy){
-	return send_cmd(uart, HDR_MOVE, (uint8_t []){dx, dy}, 2);
+	return 0x0;
 }
 
 
 /* local functions */
+static void be_destroy(backend_t *be){
+	uart_t *uart = (uart_t*)(be->data);
+
+
+	if(uart->fd >= 0){
+		be_stop(be);
+		close(uart->fd);
+	}
+
+	free(uart);
+	free(be);
+}
+
+static int be_stop(backend_t *be){
+	return send_cmd(be->data, HDR_CLOSE, 0x0, 0);
+}
+
+static int be_key(backend_t *be, KeySym sym, bool press){
+	uint8_t key;
+
+
+	key = translate_keysym(sym);
+
+	if(key == 0)
+		return ERROR("unsupported key: keysym=%s", XKeysymToString(sym));
+
+	return send_cmd(be->data, press ? HDR_KEY_PRESS : HDR_KEY_RELEASE, &key, 1);
+}
+
+static int be_button(backend_t *be, uint8_t button, bool press){
+	if(button == 4 || button == 5)
+		return vscroll(be->data, button);
+
+	if(button == 6 || button == 7)
+		return hscroll(be->data, button);
+
+	return send_cmd(be->data, press ? HDR_BUTTON_PRESS : HDR_BUTTON_RELEASE, &button, 1);
+}
+
+static int be_move(backend_t *be, int8_t dx, int8_t dy){
+	return send_cmd(be->data, HDR_MOVE, (uint8_t []){dx, dy}, 2);
+}
+
+static unsigned int be_render_status(backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y){
+	unsigned int dx = 0;
+	uart_t *uart = ((uart_t*)be->data);
+
+
+	dx += xlib_cprintf(xobj, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");
+	dx += xlib_cprintf(xobj, x + dx, y, COLOR_TEXT, (uart->fd >= 0) ? CONFIG_UART_PATTERN : "none", uart->dev_num);
+
+	return dx;
+}
+
 static int hscroll(uart_t *uart, uint8_t button){
 	return send_cmd(uart, HDR_HSCROLL, (uint8_t []){ (button == 7) ? CONFIG_SCROLL_DISTANCE : -CONFIG_SCROLL_DISTANCE }, 1);
 }
@@ -202,6 +271,125 @@ static int configure(int fd){
 		return -1;
 
 	return 0;
+}
+
+static uint8_t translate_keysym(KeySym sym){
+	/* workaround mapping to account for the blekeyboard library always using a US keyboard layout */
+	switch(sym){
+	case XK_y:				return 'z';		// y
+	case XK_z:				return 'y';		// z
+	case XK_asciicircum:	return '`';		// ^
+	case XK_ssharp:			return '-';		// sz
+	case XK_acute:			return '=';		// ´
+	case XK_plus:			return ']';		// +
+	case XK_minus:			return '/';		// -
+	case XK_numbersign:		return '\\';	// #
+	case XK_equal:			return '\'';	// =
+	case XK_odiaeresis:		return ';';		// oe
+	case XK_adiaeresis:		return '\'';	// ae
+	case XK_udiaeresis:		return '[';		// ue
+	}
+
+	if(sym >= 32 && sym < 127)
+		return sym;
+
+	if(opts.reverse_custom_xkb_map){
+		// Reverse effect of custom xkb file.
+		//
+		// The custom xkb mapping pre-translates key sequences on the xserver level, e.g. alt_l + left
+		// to home. This poses a problem here since the keys sent to the target, when for instance
+		// typing alt_l + left, is alt_t and home instead of alt_t and left.
+		switch(sym){
+		case XK_Insert:				return NONASCII_BASE + 14;
+		case XK_Delete:				return NONASCII_BASE + 12;
+		case XK_Page_Up:			return NONASCII_BASE + 8;
+		case XK_Page_Down:			return NONASCII_BASE + 9;
+		case XK_Home:				return NONASCII_BASE + 10;
+		case XK_End:				return NONASCII_BASE + 11;
+		default:					break;
+		}
+	}
+
+	switch(sym){
+	case XK_Control_L:			return NONASCII_BASE + 0;
+	case XK_Shift_L:			return NONASCII_BASE + 1;
+	case XK_Alt_L:				return NONASCII_BASE + 2;
+	case XK_Super_L:			return NONASCII_BASE + 3;
+	case XK_Control_R:			return NONASCII_BASE + 4;
+	case XK_Shift_R:			return NONASCII_BASE + 5;
+	case XK_Alt_R:				return NONASCII_BASE + 6;
+	case XK_ISO_Level3_Shift:	return NONASCII_BASE + 6;
+	case XK_Super_R:			return NONASCII_BASE + 7;
+	case XK_Up:					return NONASCII_BASE + 8;
+	case XK_Down:				return NONASCII_BASE + 9;
+	case XK_Left:				return NONASCII_BASE + 10;
+	case XK_Right:				return NONASCII_BASE + 11;
+	case XK_BackSpace:			return NONASCII_BASE + 12;
+	case XK_Tab:				return NONASCII_BASE + 13;
+	case XK_Return:				return NONASCII_BASE + 14;
+	case XK_Escape:				return NONASCII_BASE + 15;
+	case XK_Print:				return NONASCII_BASE + 17;
+	case XK_Caps_Lock:			return NONASCII_BASE + 23;
+	case XK_F1:					return NONASCII_BASE + 24;
+	case XK_F2:					return NONASCII_BASE + 25;
+	case XK_F3:					return NONASCII_BASE + 26;
+	case XK_F4:					return NONASCII_BASE + 27;
+	case XK_F5:					return NONASCII_BASE + 28;
+	case XK_F6:					return NONASCII_BASE + 29;
+	case XK_F7:					return NONASCII_BASE + 30;
+	case XK_F8:					return NONASCII_BASE + 31;
+	case XK_F9:					return NONASCII_BASE + 32;
+	case XK_F10:				return NONASCII_BASE + 33;
+	case XK_F11:				return NONASCII_BASE + 34;
+	case XK_F12:				return NONASCII_BASE + 35;
+	case XK_F13:				return NONASCII_BASE + 36;
+	case XK_F14:				return NONASCII_BASE + 37;
+	case XK_F15:				return NONASCII_BASE + 38;
+	case XK_F16:				return NONASCII_BASE + 39;
+	case XK_F17:				return NONASCII_BASE + 40;
+	case XK_F18:				return NONASCII_BASE + 41;
+	case XK_F19:				return NONASCII_BASE + 42;
+	case XK_F20:				return NONASCII_BASE + 43;
+	case XK_F21:				return NONASCII_BASE + 44;
+	case XK_F22:				return NONASCII_BASE + 45;
+	case XK_F23:				return NONASCII_BASE + 46;
+	case XK_F24:				return NONASCII_BASE + 47;
+	case XK_KP_Insert:
+	case XK_KP_0:				return NONASCII_BASE + 48;
+	case XK_KP_End:
+	case XK_KP_1:				return NONASCII_BASE + 49;
+	case XK_KP_Down:
+	case XK_KP_2:				return NONASCII_BASE + 50;
+	case XK_KP_Page_Down:
+	case XK_KP_3:				return NONASCII_BASE + 51;
+	case XK_KP_Left:
+	case XK_KP_4:				return NONASCII_BASE + 52;
+	case XK_KP_Begin:
+	case XK_KP_5:				return NONASCII_BASE + 53;
+	case XK_KP_Right:
+	case XK_KP_6:				return NONASCII_BASE + 54;
+	case XK_KP_Home:
+	case XK_KP_7:				return NONASCII_BASE + 55;
+	case XK_KP_Up:
+	case XK_KP_8:				return NONASCII_BASE + 56;
+	case XK_KP_Page_Up:
+	case XK_KP_9:				return NONASCII_BASE + 57;
+	case XK_KP_Divide:			return NONASCII_BASE + 58;
+	case XK_KP_Multiply:		return NONASCII_BASE + 59;
+	case XK_KP_Subtract:		return NONASCII_BASE + 60;
+	case XK_KP_Add:				return NONASCII_BASE + 61;
+	case XK_KP_Enter:			return NONASCII_BASE + 62;
+	case XK_KP_Delete:
+	case XK_KP_Separator:		return NONASCII_BASE + 63;
+	case XK_Num_Lock:			return NONASCII_BASE + 64;
+	case XK_Insert:				return NONASCII_BASE + 16;
+	case XK_Delete:				return NONASCII_BASE + 18;
+	case XK_Page_Up:			return NONASCII_BASE + 19;
+	case XK_Page_Down:			return NONASCII_BASE + 20;
+	case XK_Home:				return NONASCII_BASE + 21;
+	case XK_End:				return NONASCII_BASE + 22;
+	default:					return 0;
+	}
 }
 
 static char const *strcmd(hdr_t hdr){

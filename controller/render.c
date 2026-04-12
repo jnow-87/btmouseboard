@@ -22,7 +22,7 @@ static char const *log_level_prefix[] = {
 
 
 /* global functions */
-void render(xlib_obj_t *xobj, uart_t *uart){
+void render(xlib_obj_t *xobj, backend_t *be){
 	unsigned int x = 0,
 				 y = 0;
 	size_t log_lines;
@@ -48,8 +48,7 @@ void render(xlib_obj_t *xobj, uart_t *uart){
 	y = xobj->win_height - 1.5 * xobj->gfx->font_height;
 
 	xlib_rect(xobj, 0, y, xobj->win_width, xobj->gfx->font_height * 1.5, COLOR_STATUSLINE, true);
-	x += xlib_cprintf(xobj, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");
-	x += xlib_cprintf(xobj, x, y, COLOR_TEXT, (uart->fd >= 0) ? CONFIG_UART_PATTERN : "none", uart->dev_num);
+	x += be->render_status(be, xobj, x, y);
 
 	xlib_scene_end(xobj);
 

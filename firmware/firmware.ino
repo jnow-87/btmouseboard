@@ -3,7 +3,7 @@
 #include <hal/usb_serial_jtag_ll.h>
 #include <firmware/blekeyboard.h>
 #include <firmware/blemouse.h>
-#include <protocol.h>
+#include <common/uart.h>
 
 
 /* macros */
