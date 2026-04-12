@@ -1,6 +1,6 @@
 #include <config/config.h>
 #include <X11/XKBlib.h>
-#include <controller/backend.h>
+#include <backend/backend.h>
 #include <controller/log.h>
 #include <controller/render.h>
 #include <controller/xlib.h>

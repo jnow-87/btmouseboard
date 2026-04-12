@@ -9,12 +9,12 @@
 #include <termios.h>
 #include <unistd.h>
 #include <X11/X.h>
-#include <controller/backend.h>
+#include <backend/backend.h>
+#include <backend/bluetooth/protocol.h>
 #include <controller/log.h>
 #include <controller/opts.h>
 #include <controller/render.h>
 #include <controller/xlib.h>
-#include <common/uart.h>
 
 
 /* macros */
@@ -92,7 +92,7 @@ err_1:
 	free(be);
 
 err_0:
-	ERROR("allocating uart backend");
+	ERROR("allocating bluetooth backend");
 
 	return 0x0;
 }
@@ -100,7 +100,7 @@ err_0:
 
 /* local functions */
 static void be_destroy(backend_t *be){
-	uart_t *uart = (uart_t*)(be->data);
+	uart_t *uart = (uart_t*)be->data;
 
 
 	if(uart->fd >= 0){
@@ -144,7 +144,7 @@ static int be_move(backend_t *be, int8_t dx, int8_t dy){
 
 static unsigned int be_render_status(backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y){
 	unsigned int dx = 0;
-	uart_t *uart = ((uart_t*)be->data);
+	uart_t *uart = (uart_t*)be->data;
 
 
 	dx += xlib_cprintf(xobj, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");

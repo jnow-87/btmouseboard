@@ -1,5 +1,5 @@
-#ifndef UART_H
-#define UART_H
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
 
 #include <stdint.h>
@@ -32,4 +32,4 @@ typedef enum : int8_t{
 } response_t;
 
 
-#endif // UART_H
+#endif // PROTOCOL_H

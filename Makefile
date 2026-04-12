@@ -23,7 +23,7 @@ tool_deps := arduino-cli
 
 # init source and build tree
 default_build_tree := build/$(CONFIG_BUILD_TYPE)/
-src_dirs := controller firmware
+src_dirs := controller
 
 # include build system Makefile
 include $(scripts_dir)/main.make

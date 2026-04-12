@@ -1,6 +1,6 @@
 mainmenu "btmouseboard"
 
-menu "uart"
+menu "bluetooth backend"
 	choice
 		prompt "uart variant"
 

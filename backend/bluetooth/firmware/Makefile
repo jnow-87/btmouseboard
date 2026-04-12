@@ -1,11 +1,11 @@
 # arduino-cli is run from within loc_src_tree instead of the project root, hence the
 # build system location variables, such as $(build_tree) are not valid anymore and
 # the actual build directory has to be captured separately here
-build_dir := "../$(loc_build_tree)"
+build_dir := "../../../$(loc_build_tree)"
 
 compile_flags := \
-	-I../include \
-	-I../$(build_tree)/config
+	-I../../../include \
+	-I../../../$(build_tree)/config
 
 libs := \
 	NimBLE-Arduino
@@ -16,7 +16,7 @@ libs := \
 #	$(call arduino_cli,<cli-args>)
 define arduino_cli
 	$(call cmd_run_script, \
-		cd firmware; \
+		cd backend/bluetooth/firmware; \
 		arduino-cli \
 			--config-file "arduino-cli.yaml" \
 			$1

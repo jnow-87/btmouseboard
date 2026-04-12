@@ -7,8 +7,8 @@ btmouseboard-y := \
 	main.o \
 	opts.o \
 	render.o \
-	uart.o \
-	xlib.o
+	xlib.o \
+	backend/
 
 
 btmouseboard-cppflags := \
