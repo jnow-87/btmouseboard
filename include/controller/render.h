@@ -3,7 +3,7 @@
 
 
 #include <backend/backend.h>
-#include <controller/xlib.h>
+#include <shared/xlib.h>
 
 
 /* prototypes */

@@ -7,13 +7,13 @@ btmouseboard-y := \
 	main.o \
 	opts.o \
 	render.o \
-	xlib.o \
-	backend/
+	backend/ \
+	shared/
 
 
 btmouseboard-cppflags := \
     -I/usr/include/freetype2 \
-    -D_DEFAULT_SOURCE \
+    -D_DEFAULT_SOURCE
 
 btmouseboard-ldlibs := \
     -lX11 \

@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <controller/log.h>
-#include <controller/xlib.h>
+#include <shared/xlib.h>
 
 
 /* local/static prototypes */

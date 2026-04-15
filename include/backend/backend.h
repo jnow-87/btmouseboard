@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-#include <controller/xlib.h>
+#include <shared/xlib.h>
 #include <X11/X.h>
 
 

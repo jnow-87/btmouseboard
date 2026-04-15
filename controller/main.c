@@ -4,7 +4,7 @@
 #include <controller/log.h>
 #include <controller/opts.h>
 #include <controller/render.h>
-#include <controller/xlib.h>
+#include <shared/xlib.h>
 
 
 /* global functions */
