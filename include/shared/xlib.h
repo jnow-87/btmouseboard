@@ -38,35 +38,42 @@ typedef struct{
 	Display *dpy;
 	Window root;
 	int screen;
+} xlib_obj_t;
 
-	int win_width,
-		win_height;
-	Window win;
+typedef struct{
+	xlib_obj_t *xobj;
+
+	int width,
+		height;
+	Window id;
 
 	gfx_t *gfx;
 
 	int cursor_x,
 		cursor_y;
-} xlib_obj_t;
+} xlib_win_t;
 
 
 /* prototypes */
-xlib_obj_t *xlib_init(char *win_class_name);
+xlib_obj_t *xlib_init(void);
 void xlib_destroy(xlib_obj_t *xobj);
 
+xlib_win_t *xlib_win_create(xlib_obj_t *xobj, char *win_class_name);
+void xlib_win_destroy(xlib_win_t *win);
+
 int xlib_event(xlib_obj_t *xobj, xevent_t *ev);
-void xlib_resize(xlib_obj_t *xobj, int width, int height);
+void xlib_resize(xlib_win_t *win, int width, int height);
 
-void xlib_scene_begin(xlib_obj_t *xobj);
-void xlib_scene_end(xlib_obj_t *xobj);
+void xlib_scene_begin(xlib_win_t *win);
+void xlib_scene_end(xlib_win_t *win);
 
-unsigned int xlib_printf(xlib_obj_t *xobj, int x, int y, char const *fmt, ...);
-unsigned int xlib_cprintf(xlib_obj_t *xobj, int x, int y, color_t color, char const *fmt, ...);
-unsigned int xlib_cdprintf(xlib_obj_t *xobj, int x, int y, color_t color, char const *fmt, va_list lst);
-void xlib_rect(xlib_obj_t *xobj, int x, int y, unsigned int width, unsigned int height, color_t color, bool filled);
+unsigned int xlib_printf(xlib_win_t *win, int x, int y, char const *fmt, ...);
+unsigned int xlib_cprintf(xlib_win_t *win, int x, int y, color_t color, char const *fmt, ...);
+unsigned int xlib_cdprintf(xlib_win_t *win, int x, int y, color_t color, char const *fmt, va_list lst);
+void xlib_rect(xlib_win_t *win, int x, int y, unsigned int width, unsigned int height, color_t color, bool filled);
 
-void xlib_cursor_move(xlib_obj_t *xobj, int x, int y);
-void xlib_cursor_visible(xlib_obj_t *xobj, bool visible);
+void xlib_cursor_move(xlib_win_t *win, int x, int y);
+void xlib_cursor_visible(xlib_win_t *win, bool visible);
 
 
 #endif // XLIB_H

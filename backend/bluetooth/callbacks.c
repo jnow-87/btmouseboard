@@ -39,7 +39,7 @@ static int be_key(backend_t *be, KeySym sym, bool press);
 static int be_button(backend_t *be, uint8_t button, bool press);
 static int be_move(backend_t *be, int8_t dx, int8_t dy);
 
-static unsigned int be_render_status(backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y);
+static unsigned int be_render_status(backend_t *be, xlib_win_t *win, unsigned int x, unsigned int y);
 
 // firmware protocol
 static int hscroll(uart_t *uart, uint8_t button);
@@ -142,13 +142,13 @@ static int be_move(backend_t *be, int8_t dx, int8_t dy){
 	return send_cmd(be->data, HDR_MOVE, (uint8_t []){dx, dy}, 2);
 }
 
-static unsigned int be_render_status(backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y){
+static unsigned int be_render_status(backend_t *be, xlib_win_t *win, unsigned int x, unsigned int y){
 	unsigned int dx = 0;
 	uart_t *uart = (uart_t*)be->data;
 
 
-	dx += xlib_cprintf(xobj, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");
-	dx += xlib_cprintf(xobj, x + dx, y, COLOR_TEXT, (uart->fd >= 0) ? CONFIG_UART_PATTERN : "none", uart->dev_num);
+	dx += xlib_cprintf(win, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");
+	dx += xlib_cprintf(win, x + dx, y, COLOR_TEXT, (uart->fd >= 0) ? CONFIG_UART_PATTERN : "none", uart->dev_num);
 
 	return dx;
 }

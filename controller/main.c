@@ -12,6 +12,7 @@ int main(int argc, char **argv){
 	int r;
 	backend_t *be;
 	xlib_obj_t *xobj;
+	xlib_win_t *win;
 	xevent_t ev;
 
 
@@ -25,27 +26,36 @@ int main(int argc, char **argv){
 	if(be == 0x0)
 		goto err_0;
 
-	xobj = xlib_init("btmouseboard");
+	xobj = xlib_init();
 
 	if(xobj == 0x0)
 		goto err_1;
+
+	win = xlib_win_create(xobj, "btmouseboard");
+
+	if(win == 0x0)
+		goto err_2;
 
 	// after initialising the log, log messages
 	// are shown in the window, instead of stdout
 	log_init(opts.debug);
 
 	while(xlib_event(xobj, &ev) == 0){
-		if(event_handle(&ev, xobj, be) > 0)
+		if(event_handle(&ev, win, be) > 0)
 			break;
 
-		render(xobj, be);
+		render(win, be);
 	}
 
+	xlib_win_destroy(win);
 	xlib_destroy(xobj);
 	be->destroy(be);
 
 	return 0;
 
+
+err_2:
+	xlib_destroy(xobj);
 
 err_1:
 	be->destroy(be);

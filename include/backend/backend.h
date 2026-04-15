@@ -20,7 +20,7 @@ typedef struct backend_t{
 	int (*button)(struct backend_t *be, uint8_t button, bool press);
 	int (*move)(struct backend_t *be, int8_t dx, int8_t dy);
 
-	unsigned int (*render_status)(struct backend_t *be, xlib_obj_t *xobj, unsigned int x, unsigned int y);
+	unsigned int (*render_status)(struct backend_t *be, xlib_win_t *win, unsigned int x, unsigned int y);
 } backend_t;
 
 
