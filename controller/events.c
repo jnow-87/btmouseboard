@@ -77,8 +77,15 @@ int event_handle(xevent_t *ev, xlib_win_t *win, backend_t *be){
 /* local functions */
 static int client_message(xevent_t *e, xlib_win_t *win, backend_t *be){
 	XClientMessageEvent *ev = (XClientMessageEvent*)e;
+	char err[128];
 	Atom atom;
 
+
+	if(xlib_error(win->xobj, err, sizeof(err)) == 0){
+		ERROR("xlib %s", err);
+
+		return 1;
+	}
 
 	atom = XInternAtom(win->xobj->dpy, "WM_DELETE_WINDOW", 0);
 

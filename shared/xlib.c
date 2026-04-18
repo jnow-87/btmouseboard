@@ -7,7 +7,6 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <controller/log.h>
 #include <shared/xlib.h>
 
 
@@ -15,7 +14,7 @@
 static gfx_t *gfx_init(xlib_obj_t *xobj, int width, int height);
 static void gfx_destroy(gfx_t *gfx, xlib_obj_t *xobj);
 
-static int error_handler(Display *dsp, XErrorEvent *evt);
+static int error_handler(Display *dpy, XErrorEvent *evt);
 
 
 /* static variables */
@@ -127,6 +126,17 @@ int xlib_event(xlib_obj_t *xobj, xevent_t *ev){
 
 	if(XNextEvent(xobj->dpy, ev))
 		return -1;
+
+	return 0;
+}
+
+int xlib_error(xlib_obj_t *xobj, char *s, int n){
+	if(xerrno == 0)
+		return -1;
+
+	XGetErrorText(xobj->dpy, xerrno, s, n);
+	s[n - 1] = 0;
+	xerrno = 0;
 
 	return 0;
 }
@@ -299,14 +309,7 @@ static void gfx_destroy(gfx_t *gfx, xlib_obj_t *xobj){
 	free(gfx);
 }
 
-static int error_handler(Display *dsp, XErrorEvent *evt){
-	char msg[128];
-
-
-	XGetErrorText(dsp, evt->error_code, msg, sizeof(msg));
-	msg[sizeof(msg) - 1] = 0;
-
-	ERROR("xlib %s", msg);
+static int error_handler(Display *dpy, XErrorEvent *evt){
 	xerrno = evt->error_code;
 
 	return 0;

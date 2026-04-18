@@ -62,6 +62,7 @@ xlib_win_t *xlib_win_create(xlib_obj_t *xobj, char *win_class_name);
 void xlib_win_destroy(xlib_win_t *win);
 
 int xlib_event(xlib_obj_t *xobj, xevent_t *ev);
+int xlib_error(xlib_obj_t *xobj, char *s, int n);
 void xlib_resize(xlib_win_t *win, int width, int height);
 
 void xlib_scene_begin(xlib_win_t *win);
