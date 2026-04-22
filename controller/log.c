@@ -36,7 +36,7 @@ void log_add(log_level_t level, char const *fmt, ...){
 	time_t now;
 
 
-	if((log_level & level) == 0)
+	if(log_level != 0 && (log_level & level) == 0)
 		return;
 
 	// print to stdout if enabled or if log not initialised yet, i.e. log_level == 0
