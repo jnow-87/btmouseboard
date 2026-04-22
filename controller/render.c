@@ -14,13 +14,6 @@ static color_t log_level_color[] = {
 	[LOG_DEBUG] = COLOR_TEXT,
 };
 
-static char const *log_level_prefix[] = {
-	[LOG_INFO] = ":INF:",
-	[LOG_ERROR] = ":ERR:",
-	[LOG_DEBUG] = ":DBG:",
-};
-
-
 /* global functions */
 void render(xlib_win_t *win, backend_t *be){
 	unsigned int x = 0,
@@ -39,7 +32,9 @@ void render(xlib_win_t *win, backend_t *be){
 	for(size_t i=0; (entry=log_cycle(log_lines))!=0x0; i++){
 		x = 0;
 		x += xlib_cprintf(win, x, y, COLOR_TEXT, entry->time);
-		x += xlib_cprintf(win, x, y, log_level_color[entry->level], log_level_prefix[entry->level]);
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, ":");
+		x += xlib_cprintf(win, x, y, log_level_color[entry->level], log_strlevel(entry->level));
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, ":");
 		x += xlib_cprintf(win, x, y, COLOR_TEXT, entry->text);
 		y += win->gfx->font_height;
 	}

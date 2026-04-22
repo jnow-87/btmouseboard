@@ -42,8 +42,11 @@ void log_add(log_level_t level, char const *fmt, ...){
 	// print to stdout if enabled or if log not initialised yet, i.e. log_level == 0
 	if(opts.log_to_stdout || (log_level == 0 && ((LOG_INFO | LOG_ERROR) & level) != 0)){
 		va_start(lst, fmt);
+
+		printf("%s%s\033[0m:", (level == LOG_ERROR) ? "\033[31m" : "", log_strlevel(level));
 		vprintf(fmt, lst);
 		printf("\n");
+
 		va_end(lst);
 
 		return;
@@ -88,6 +91,15 @@ void log_add(log_level_t level, char const *fmt, ...){
 	}
 
 	render_mark();
+}
+
+char const *log_strlevel(log_level_t level){
+	switch(level){
+	case LOG_INFO:	return "INF";
+	case LOG_ERROR:	return "ERR";
+	case LOG_DEBUG: return "DBG";
+	default:		return "";
+	}
 }
 
 log_entry_t *log_cycle(size_t max){
