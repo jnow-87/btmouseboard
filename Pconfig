@@ -1,6 +1,10 @@
 mainmenu "mouseboard"
 
 menu "bluetooth backend"
+	config BT_BUILD_FIRMWARE
+		bool "build esp32 firmware"
+		default n
+
 	choice
 		prompt "uart variant"
 

@@ -15,11 +15,13 @@ config_tree := scripts/config
 # init code coverage system
 use_coverage_sys := n
 
-# external dependencies
-tool_deps := arduino-cli
-
 # include config
 -include $(config)
+
+# external dependencies
+ifeq ($(CONFIG_BT_BUILD_FIRMWARE),y)
+tool_deps := arduino-cli
+endif
 
 # init source and build tree
 default_build_tree := build/$(CONFIG_BUILD_TYPE)/

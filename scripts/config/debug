@@ -6,6 +6,7 @@
 #
 # bluetooth backend
 #
+# CONFIG_BT_BUILD_FIRMWARE is not set
 # CONFIG_UART_MODE_SERIAL is not set
 CONFIG_UART_MODE_USB_JTAG=y
 CONFIG_UART_MODE=usb-jtag
