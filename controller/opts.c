@@ -61,7 +61,7 @@ static int help(char const *prog_name, char const *err, ...){
 	}
 
 	printf(
-		"usage: %s [options]\n"
+		"usage: %s (mouseboard) [options]\n"
 		"\n"
 		"Grab the X11 keyboard and mouse and redirect their inputs to a btmouseboard usb or uart device.\n"
 		"\n"

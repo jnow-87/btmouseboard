@@ -31,7 +31,7 @@ int main(int argc, char **argv){
 	if(xobj == 0x0)
 		goto err_1;
 
-	win = xlib_win_create(xobj, "btmouseboard");
+	win = xlib_win_create(xobj, "mb");
 
 	if(win == 0x0)
 		goto err_2;

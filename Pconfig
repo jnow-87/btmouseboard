@@ -1,4 +1,4 @@
-mainmenu "btmouseboard"
+mainmenu "mouseboard"
 
 menu "bluetooth backend"
 	choice

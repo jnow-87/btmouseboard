@@ -1,7 +1,7 @@
-bin-y := btmouseboard
+bin-y := mb
 
 
-btmouseboard-y := \
+mb-y := \
 	events.o \
 	log.o \
 	main.o \
@@ -11,11 +11,11 @@ btmouseboard-y := \
 	shared/
 
 
-btmouseboard-cppflags := \
+mb-cppflags := \
     -I/usr/include/freetype2 \
     -D_DEFAULT_SOURCE
 
-btmouseboard-ldlibs := \
+mb-ldlibs := \
     -lX11 \
     -lfontconfig \
     -lXft \

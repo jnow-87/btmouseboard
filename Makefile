@@ -67,8 +67,8 @@ include $(scripts_dir)/install.make
 
 .PHONY: install
 install: all
-	$(call install,$(build_tree)/controller/btmouseboard)
+	$(call install,$(build_tree)/controller/mb)
 
 .PHONY: uninstall
 uninstall:
-	$(call uninstall,$(PREFIX)/btmouseboard)
+	$(call uninstall,$(PREFIX)/mb)
