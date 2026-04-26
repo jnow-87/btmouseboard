@@ -29,6 +29,7 @@ int log_init(bool debug){
 }
 
 void log_add(log_level_t level, char const *fmt, ...){
+	FILE *fp = (level == LOG_ERROR) ? stderr : stdout;
 	log_entry_t *entry = log + log_end;
 	char text[LINE_MAX];
 	int len;
@@ -43,9 +44,9 @@ void log_add(log_level_t level, char const *fmt, ...){
 	if(opts.log_to_stdout || (log_level == 0 && ((LOG_INFO | LOG_ERROR) & level) != 0)){
 		va_start(lst, fmt);
 
-		printf("%s%s\033[0m:", (level == LOG_ERROR) ? "\033[31m" : "", log_strlevel(level));
-		vprintf(fmt, lst);
-		printf("\n");
+		fprintf(fp, "%s%s\033[0m:", (level == LOG_ERROR) ? "\033[31m" : "", log_strlevel(level));
+		vfprintf(fp, fmt, lst);
+		fprintf(fp, "\n");
 
 		va_end(lst);
 

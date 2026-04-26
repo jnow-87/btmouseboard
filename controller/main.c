@@ -4,6 +4,7 @@
 #include <controller/log.h>
 #include <controller/opts.h>
 #include <controller/render.h>
+#include <shared/errlog.h>
 #include <shared/xlib.h>
 
 
@@ -24,17 +25,17 @@ int main(int argc, char **argv){
 	be = backend_create_uart();
 
 	if(be == 0x0)
-		goto err_0;
+		goto_err(err_0, "creating backend");
 
 	xobj = xlib_init();
 
 	if(xobj == 0x0)
-		goto err_1;
+		goto_err(err_1, "creating x11 connection");
 
 	win = xlib_win_create(xobj, "mb");
 
 	if(win == 0x0)
-		goto err_2;
+		goto_err(err_2, "creating x11 window");
 
 	// after initialising the log, log messages
 	// are shown in the window, instead of stdout
