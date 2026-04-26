@@ -66,10 +66,14 @@ distclean:
 
 ## install
 include $(scripts_dir)/install.make
+symlink := $(QUTIL)ln -srf
 
 .PHONY: install
 install: all
 	$(call install,$(build_tree)/controller/mb)
+	$(symlink) $(PREFIX)/mb $(PREFIX)/btmb
+	$(symlink) $(PREFIX)/mb $(PREFIX)/btmbmac
+	$(symlink) $(PREFIX)/mb $(PREFIX)/xmb
 
 .PHONY: install-system
 install-system: all
@@ -80,6 +84,9 @@ install-system: all
 .PHONY: uninstall
 uninstall:
 	$(call uninstall,$(PREFIX)/mb)
+	$(call uninstall,$(PREFIX)/btmb)
+	$(call uninstall,$(PREFIX)/btmbmac)
+	$(call uninstall,$(PREFIX)/xmb)
 
 .PHONY: uninstall-system
 uninstall-system:

@@ -36,6 +36,19 @@ int opts_parse(int argc, char **argv){
 	};
 
 
+	/* set options based on binary name */
+	if(strcmp(argv[0], "btmb") == 0){
+		opts.backend = BE_BLUETOOTH;
+	}
+	else if(strcmp(argv[0], "btmbmac") == 0){
+		opts.backend = BE_BLUETOOTH;
+		opts.reverse_custom_xkb_map = true;
+	}
+	else if(strcmp(argv[0], "xmb") == 0){
+		opts.backend = BE_X11;
+	}
+
+	/* parse command line arguments */
 	while((opt = getopt_long(argc, argv, ":p:b:dsxh", long_opt, 0)) != -1){
 		switch(opt){
 		case 'p':	opts.port = atoi(optarg); break;
