@@ -23,6 +23,7 @@ static unsigned char xerrno = 0;
 
 /* global functions */
 xlib_obj_t *xlib_init(void){
+	char *display;
 	xlib_obj_t *xobj;
 
 
@@ -32,7 +33,9 @@ xlib_obj_t *xlib_init(void){
 		goto err_0;
 
 	XSetErrorHandler(error_handler);
-	xobj->dpy = XOpenDisplay(0x0);
+
+	display = getenv("DISPLAY");
+	xobj->dpy = XOpenDisplay((display != 0x0) ? display : ":0.0");
 
 	if(xobj->dpy == 0x0)
 		goto err_1;
