@@ -22,27 +22,27 @@ int main(int argc, char **argv){
 	if(r != 0)
 		return r;
 
+	xobj = xlib_init();
+
+	if(xobj == 0x0)
+		goto_err(err_0, "creating x11 connection");
+
+	win = xlib_win_create(xobj, "mb");
+
+	if(win == 0x0)
+		goto_err(err_1, "creating x11 window");
+
+	// after initialising the log, log messages
+	// are shown in the window, instead of stdout
+	log_init(opts.debug);
+
 	switch(opts.backend){
 	case BE_BLUETOOTH:	be = backend_create_uart(); break;
 	case BE_X11:		be = backend_create_x11(opts.host, opts.port); break;
 	}
 
 	if(be == 0x0)
-		goto_err(err_0, "creating backend");
-
-	xobj = xlib_init();
-
-	if(xobj == 0x0)
-		goto_err(err_1, "creating x11 connection");
-
-	win = xlib_win_create(xobj, "mb");
-
-	if(win == 0x0)
-		goto_err(err_2, "creating x11 window");
-
-	// after initialising the log, log messages
-	// are shown in the window, instead of stdout
-	log_init(opts.debug);
+		goto_err(err_2, "creating backend");
 
 	while(xlib_event(xobj, &ev) == 0){
 		if(event_handle(&ev, win, be) > 0)
@@ -59,10 +59,10 @@ int main(int argc, char **argv){
 
 
 err_2:
-	xlib_destroy(xobj);
+	xlib_win_destroy(win);
 
 err_1:
-	be->destroy(be);
+	xlib_destroy(xobj);
 
 err_0:
 	return 1;
