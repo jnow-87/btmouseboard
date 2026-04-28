@@ -1,16 +1,22 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# btmouseboard
+# mouseboard
 #
 
 #
-# uart
+# bluetooth backend
 #
+# CONFIG_BT_BUILD_FIRMWARE is not set
 # CONFIG_UART_MODE_SERIAL is not set
 CONFIG_UART_MODE_USB_JTAG=y
 CONFIG_UART_MODE=usb-jtag
 CONFIG_UART_PATTERN="/dev/ttyACM%d"
 CONFIG_UART_BAUDRATE=115200
+
+#
+# x11 backend
+#
+CONFIG_SOCK_PORT=1302
 
 #
 # controller
@@ -22,6 +28,7 @@ CONFIG_WIN_HEIGHT=400
 CONFIG_COLOR_TEXT="#ffffff"
 CONFIG_COLOR_ERROR="#ff0000"
 CONFIG_COLOR_INFO="#dfaf00"
+CONFIG_COLOR_SUCCESS="#00ff00"
 CONFIG_COLOR_BACKGROUND="#000000"
 CONFIG_COLOR_STATUSLINE="#5f005f"
 CONFIG_COLOR_BLUETOOTH="#0087df"

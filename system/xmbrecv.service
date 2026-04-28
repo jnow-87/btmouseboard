@@ -1,0 +1,13 @@
+[Unit]
+Description=xmbrecv service
+
+[Service]
+ExecStart=/usr/bin/xmbrecv -f
+ExecStop=killall -9 xmbrecv
+RuntimeDirectory=xmbrecv
+RuntimeDirectoryMode=0755
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=basic.target

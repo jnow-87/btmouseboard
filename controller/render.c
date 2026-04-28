@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <controller/log.h>
 #include <controller/render.h>
-#include <controller/xlib.h>
+#include <shared/xlib.h>
 
 
 /* static variables */
@@ -14,15 +14,8 @@ static color_t log_level_color[] = {
 	[LOG_DEBUG] = COLOR_TEXT,
 };
 
-static char const *log_level_prefix[] = {
-	[LOG_INFO] = ":INF:",
-	[LOG_ERROR] = ":ERR:",
-	[LOG_DEBUG] = ":DBG:",
-};
-
-
 /* global functions */
-void render(xlib_obj_t *xobj, uart_t *uart){
+void render(xlib_win_t *win, backend_t *be){
 	unsigned int x = 0,
 				 y = 0;
 	size_t log_lines;
@@ -32,26 +25,27 @@ void render(xlib_obj_t *xobj, uart_t *uart){
 	if(!render_requested)
 		return;
 
-	xlib_scene_begin(xobj);
+	xlib_scene_begin(win);
 
-	log_lines = (xobj->win_height - 1.5 * xobj->gfx->font_height) / xobj->gfx->font_height;
+	log_lines = (win->height - 1.5 * win->gfx->font_height) / win->gfx->font_height;
 
 	for(size_t i=0; (entry=log_cycle(log_lines))!=0x0; i++){
 		x = 0;
-		x += xlib_cprintf(xobj, x, y, COLOR_TEXT, entry->time);
-		x += xlib_cprintf(xobj, x, y, log_level_color[entry->level], log_level_prefix[entry->level]);
-		x += xlib_cprintf(xobj, x, y, COLOR_TEXT, entry->text);
-		y += xobj->gfx->font_height;
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, entry->time);
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, ":");
+		x += xlib_cprintf(win, x, y, log_level_color[entry->level], log_strlevel(entry->level));
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, ":");
+		x += xlib_cprintf(win, x, y, COLOR_TEXT, entry->text);
+		y += win->gfx->font_height;
 	}
 
 	x = 0;
-	y = xobj->win_height - 1.5 * xobj->gfx->font_height;
+	y = win->height - 1.5 * win->gfx->font_height;
 
-	xlib_rect(xobj, 0, y, xobj->win_width, xobj->gfx->font_height * 1.5, COLOR_STATUSLINE, true);
-	x += xlib_cprintf(xobj, x, y, uart->connected ? COLOR_BLUETOOTH : COLOR_TEXT, "   ");
-	x += xlib_cprintf(xobj, x, y, COLOR_TEXT, (uart->fd >= 0) ? CONFIG_UART_PATTERN : "none", uart->dev_num);
+	xlib_rect(win, 0, y, win->width, win->gfx->font_height * 1.5, COLOR_STATUSLINE, true);
+	x += be->render_status(be, win, x, y);
 
-	xlib_scene_end(xobj);
+	xlib_scene_end(win);
 
 	render_requested = false;
 }

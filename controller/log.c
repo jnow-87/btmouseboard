@@ -29,6 +29,7 @@ int log_init(bool debug){
 }
 
 void log_add(log_level_t level, char const *fmt, ...){
+	FILE *fp = (level == LOG_ERROR) ? stderr : stdout;
 	log_entry_t *entry = log + log_end;
 	char text[LINE_MAX];
 	int len;
@@ -36,14 +37,17 @@ void log_add(log_level_t level, char const *fmt, ...){
 	time_t now;
 
 
-	if((log_level & level) == 0)
+	if(log_level != 0 && (log_level & level) == 0)
 		return;
 
 	// print to stdout if enabled or if log not initialised yet, i.e. log_level == 0
 	if(opts.log_to_stdout || (log_level == 0 && ((LOG_INFO | LOG_ERROR) & level) != 0)){
 		va_start(lst, fmt);
-		vprintf(fmt, lst);
-		printf("\n");
+
+		fprintf(fp, "%s%s\033[0m:", (level == LOG_ERROR) ? "\033[31m" : "", log_strlevel(level));
+		vfprintf(fp, fmt, lst);
+		fprintf(fp, "\n");
+
 		va_end(lst);
 
 		return;
@@ -88,6 +92,15 @@ void log_add(log_level_t level, char const *fmt, ...){
 	}
 
 	render_mark();
+}
+
+char const *log_strlevel(log_level_t level){
+	switch(level){
+	case LOG_INFO:	return "INF";
+	case LOG_ERROR:	return "ERR";
+	case LOG_DEBUG: return "DBG";
+	default:		return "";
+	}
 }
 
 log_entry_t *log_cycle(size_t max){

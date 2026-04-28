@@ -1,5 +1,5 @@
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef BT_PROTOCOL_H
+#define BT_PROTOCOL_H
 
 
 #include <stdint.h>
@@ -32,4 +32,4 @@ typedef enum : int8_t{
 } response_t;
 
 
-#endif // PROTOCOL_H
+#endif // BT_PROTOCOL_H

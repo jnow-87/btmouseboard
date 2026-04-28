@@ -1,21 +1,17 @@
-bin-y := mb
+bin-y := xmbrecv
 
 
-mb-y := \
-	events.o \
-	log.o \
+xmbrecv-y := \
 	main.o \
+	log.o \
 	opts.o \
-	render.o \
-	backend/ \
 	shared/
 
-
-mb-cppflags := \
+xmbrecv-cppflags := \
 	-I/usr/include/freetype2 \
 	-D_DEFAULT_SOURCE
 
-mb-ldlibs := \
+xmbrecv-ldlibs := \
 	-lX11 \
 	-lXfixes \
 	-lXft \

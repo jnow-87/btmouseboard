@@ -1,6 +1,10 @@
-mainmenu "btmouseboard"
+mainmenu "mouseboard"
 
-menu "uart"
+menu "bluetooth backend"
+	config BT_BUILD_FIRMWARE
+		bool "build esp32 firmware"
+		default n
+
 	choice
 		prompt "uart variant"
 
@@ -36,6 +40,12 @@ menu "uart"
 	endmenu
 endmenu
 
+menu "x11 backend"
+	config SOCK_PORT
+		int "default port"
+		default 1302
+endmenu
+
 menu "controller"
 	config SCROLL_DISTANCE
 		int "scroll distance"
@@ -64,6 +74,10 @@ menu "controller"
 	config COLOR_INFO
 		qstring "color: info messages"
 		default "#dfaf00"
+
+	config COLOR_SUCCESS
+		qstring "color: success messages"
+		default "#00ff00"
 
 	config COLOR_BACKGROUND
 		qstring "color: window background"

@@ -3,17 +3,14 @@
 
 
 #include <stdbool.h>
-#include <backend/backend.h>
+#include <stdint.h>
 
 
 /* types */
 typedef struct{
-	bool debug,
-		 log_to_stdout,
-		 reverse_custom_xkb_map;
-	unsigned int port;
-	backend_type_t backend;
-	char const *host;
+	uint16_t port;
+	bool foreground,
+		 debug;
 } opts_t;
 
 

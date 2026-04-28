@@ -16,7 +16,7 @@
 
 
 
-#include <firmware/blemouse.h>
+#include <backend/bluetooth/blemouse.h>
 
 void BleMouse::click(uint8_t b)
 {

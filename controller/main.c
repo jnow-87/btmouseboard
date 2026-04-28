@@ -1,17 +1,19 @@
 #include <string.h>
+#include <backend/backend.h>
 #include <controller/events.h>
 #include <controller/log.h>
 #include <controller/opts.h>
 #include <controller/render.h>
-#include <controller/uart.h>
-#include <controller/xlib.h>
+#include <shared/errlog.h>
+#include <shared/xlib.h>
 
 
 /* global functions */
 int main(int argc, char **argv){
 	int r;
-	uart_t *uart;
+	backend_t *be;
 	xlib_obj_t *xobj;
+	xlib_win_t *win;
 	xevent_t ev;
 
 
@@ -20,35 +22,47 @@ int main(int argc, char **argv){
 	if(r != 0)
 		return r;
 
-	uart = uart_init();
-
-	if(uart == 0x0)
-		goto err_0;
-
-	xobj = xlib_init("btmouseboard");
+	xobj = xlib_init();
 
 	if(xobj == 0x0)
-		goto err_1;
+		goto_err(err_0, "creating x11 connection");
+
+	win = xlib_win_create(xobj, "mb");
+
+	if(win == 0x0)
+		goto_err(err_1, "creating x11 window");
 
 	// after initialising the log, log messages
 	// are shown in the window, instead of stdout
 	log_init(opts.debug);
 
-	while(xlib_event(xobj, &ev) == 0){
-		if(event_handle(&ev, xobj, uart) > 0)
-			break;
-
-		render(xobj, uart);
+	switch(opts.backend){
+	case BE_BLUETOOTH:	be = backend_create_uart(); break;
+	case BE_X11:		be = backend_create_x11(opts.host, opts.port); break;
 	}
 
+	if(be == 0x0)
+		goto_err(err_2, "creating backend");
+
+	while(xlib_event(xobj, &ev) == 0){
+		if(event_handle(&ev, win, be) > 0)
+			break;
+
+		render(win, be);
+	}
+
+	xlib_win_destroy(win);
 	xlib_destroy(xobj);
-	uart_destroy(uart);
+	be->destroy(be);
 
 	return 0;
 
 
+err_2:
+	xlib_win_destroy(win);
+
 err_1:
-	uart_destroy(uart);
+	xlib_destroy(xobj);
 
 err_0:
 	return 1;

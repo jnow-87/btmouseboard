@@ -2,12 +2,12 @@
 #define RENDER_H
 
 
-#include <controller/uart.h>
-#include <controller/xlib.h>
+#include <backend/backend.h>
+#include <shared/xlib.h>
 
 
 /* prototypes */
-void render(xlib_obj_t *xobj, uart_t *uart);
+void render(xlib_win_t *win, backend_t *be);
 void render_mark(void);
 
 

@@ -30,6 +30,7 @@ typedef struct{
 /* prototypes */
 int log_init(bool debug);
 void log_add(log_level_t level, char const *fmt, ...);
+char const *log_strlevel(log_level_t level);
 log_entry_t *log_cycle(size_t max);
 
 

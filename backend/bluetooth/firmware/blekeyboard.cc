@@ -16,7 +16,7 @@
 
 
 
-#include <firmware/blekeyboard.h>
+#include <backend/bluetooth/blekeyboard.h>
 #include <NimBLEDevice.h>
 #include <NimBLEServer.h>
 #include <NimBLEUtils.h>

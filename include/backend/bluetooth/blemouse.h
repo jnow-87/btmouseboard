@@ -18,7 +18,7 @@
 
 #ifndef ESP32_BLE_COMBO_MOUSE_H
 #define ESP32_BLE_COMBO_MOUSE_H
-#include <firmware/blekeyboard.h>
+#include <backend/bluetooth/blekeyboard.h>
 
 #define MOUSE_LEFT 1
 #define MOUSE_RIGHT 2
